@@ -6,49 +6,92 @@
 
 #include "Point.hpp"
 
-enum class TileType
+enum class Tile
 {
-	Unknown,
-	Obstacle,
 	Free,
-	Path,
+	Obstacle,
+	Unknown	
+};
 
-// Algo state enum
-
+enum class AlgoState
+{
+	Free,
 	Checked,
 	InProgress
 };
 
-std::ostream& operator<< (std::ostream& cout, TileType tileType)
+enum class Results
 {
-	switch(tileType)
+	Free,
+	Path
+};
+
+std::ostream& operator<< (std::ostream& cout, Results results)
+{
+	switch(results)
 	{
-		case TileType::Obstacle:
+		case Results::Path:
 
-			cout << 'X';
+			cout << 'V';
 			break;
 
-		case TileType::Free:
+		case Results::Free:
 
-			cout << 'F';
+			cout << 'o';
 			break;
 
-		case TileType::Path:
+		default: // default - copypaste
 
-			cout << 'P';
+			cout << '?';
 			break;
+	}
 
-		case TileType::Checked:
+	return cout;
+}
+
+std::ostream& operator<< (std::ostream& cout, AlgoState algoState)
+{
+	switch(algoState)
+	{
+		case AlgoState::Checked:
 
 			cout << 'C';
 			break;
 
-		case TileType::InProgress:
+		case AlgoState::InProgress:
 
 			cout << 'I';
 			break;
-	
-		case TileType::Unknown:
+
+		case AlgoState::Free:
+
+			cout << '0';
+			break;
+
+		default:
+
+			cout << '?';
+			break;
+	}
+
+	return cout;
+}
+
+std::ostream& operator<< (std::ostream& cout, Tile tileType)
+{
+	switch(tileType)
+	{
+		case Tile::Obstacle:
+
+			cout << 'X';
+			break;
+
+		case Tile::Free:
+
+			cout << 'F';
+			break;
+
+		case Tile::Unknown:
 		default:
 
 			cout << '?';

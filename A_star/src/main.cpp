@@ -17,18 +17,23 @@ int main()
 {
 	try
 	{
+
+// [create layers]
+
 		size_t size = 5; 
 
-		Grid<TileType> grid{size};
-
-		grid[0][1] = TileType::Obstacle;
-		grid[1][1] = TileType::Obstacle;
-		grid[2][1] = TileType::Obstacle;
-		grid[3][1] = TileType::Obstacle;
-
+		Grid<Tile> map{size}; 	// it would be convinient to give list of neccessary layers
+								// when craete grid. builder pattern?
+		Grid<AlgoState> state{size};
 		Grid<Point> paths{size};
+		Grid<Results> results{size};
 
-		// print(grid);
+		map[0][1] = Tile::Obstacle;
+		map[1][1] = Tile::Obstacle;
+		map[2][1] = Tile::Obstacle;
+		map[3][1] = Tile::Obstacle;
+
+// [BFS]
 
 		std::queue<Point> nextDoors;
 
@@ -42,7 +47,7 @@ int main()
 			Point current = nextDoors.front();
 			nextDoors.pop();
 
-			grid.at(current) = TileType::Checked;
+			state.at(current) = AlgoState::Checked;
 
 			if (current == finish)
 			{
@@ -54,12 +59,13 @@ int main()
 				Point neighbour = current + shift;
 
 				if (lessEqualThan(Zeros, neighbour) && lessThan(neighbour, Point{size}) &&
-					grid.at(neighbour) != TileType::Checked &&
-					grid.at(neighbour) != TileType::InProgress &&
-					grid.at(neighbour) != TileType::Obstacle)
+					state.at(neighbour) != AlgoState::Checked &&
+					state.at(neighbour) != AlgoState::InProgress &&
+					map.at(neighbour) != Tile::Obstacle)
 				{
 					paths.at(neighbour) = current;
-					grid.at(neighbour) = TileType::InProgress;
+					state.at(neighbour) = AlgoState::InProgress;
+
 					nextDoors.push(neighbour);
 				}
 			}
@@ -67,21 +73,21 @@ int main()
 			// print(paths);
 		}
 
-		grid.at(start) = TileType::Path;
-		grid.at(finish) = TileType::Path;
+		results.at(start) = Results::Path;
+		results.at(finish) = Results::Path;
 
 		Point currCell = paths.at(finish);
 		
 		while(currCell != start)
 		{
-			grid.at(currCell) = TileType::Path;
+			results.at(currCell) = Results::Path;
 
 			Point prevCell = paths.at(currCell);
 
 			currCell = prevCell;
 		}
 
-		print(grid);
+		print(results);
 
 		// PathBFS = SearchBFS(grid, start, end);
 
