@@ -4,19 +4,14 @@
 
 #include "Graph.hpp"
 
+/*
 
-struct Point
-{
-	int x;
-	int y;
-};
+	For path finding I want to store
+	history of each 	
 
-Point operator+(const Point& lhs, const Point& rhs)
-{
-	return Point{lhs.x + rhs.x, lhs.y + rhs.y};
-}
+*/
 
-const std::array<Point, 4> shifts{Point{1, 0}, Point{-1, 0}, Point{0, 1}, Point{0, -1}};
+using ValueType = int;
 
 int main()
 {
@@ -24,13 +19,15 @@ int main()
 	{
 		size_t size = 5; 
 
-		Grid grid{size};
+		Grid<int> grid{size};
+		Grid<Point> paths{size};
 
-		print(grid);
+		// print(grid);
 
 		std::queue<Point> nextDoors;
 
 		Point start{0, 0};
+		Point finish{2, 2};
 
 		nextDoors.push(start);
 
@@ -39,29 +36,45 @@ int main()
 			Point current = nextDoors.front();
 			nextDoors.pop();
 
-			grid[current.y][current.x] = 1;
+			grid.at(current) = 1;
 
-			for (Point shift : shifts) // use auto instead?
+			if (current == finish)
+			{
+				break;
+			}
+
+			for (Point shift : shifts)
 			{
 				Point neighbour = current + shift;
 
-				if (0 <= neighbour.x && neighbour.x < size &&
-					0 <= neighbour.y && neighbour.y < size &&
-					grid[neighbour.y][neighbour.x].value != 1 &&
-					grid[neighbour.y][neighbour.x].value != 8)
+				if (lessEqualThan(Zeros, neighbour) && lessThan(neighbour, Point{size}) &&
+					grid.at(neighbour) != 1 &&
+					grid.at(neighbour) != 8)
 				{
-					grid[neighbour.y][neighbour.x] = 8;
+					paths.at(neighbour) = current;
+					grid.at(neighbour) = 8;
 					nextDoors.push(neighbour);
 				}
 			}
 
-			print(grid);
-
-			int x;
-			std::cin >> x;
-
-			system("clear");
+			// print(paths);
 		}
+
+		grid.at(start) = 5;
+		grid.at(finish) = 5;
+
+		Point currCell = paths.at(finish);
+		
+		while(currCell != start)
+		{
+			grid.at(currCell) = 5;
+
+			Point prevCell = paths.at(currCell);
+
+			currCell = prevCell;
+		}
+
+		print(grid);
 
 		// PathBFS = SearchBFS(grid, start, end);
 

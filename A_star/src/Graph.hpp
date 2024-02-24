@@ -4,31 +4,9 @@
 #include <vector>
 #include <iostream>
 
-using ValueType = int;
+#include "Point.hpp"
 
-struct Node
-{
-	ValueType value;
-
-	Node(const ValueType& _value);
-
-	Node();
-
-	Node& operator= (const ValueType& _value);
-};
-
-Node::Node() : value{0} {}
-
-
-Node::Node(const ValueType& _value) : value{_value} {};
-
-
-Node& Node::operator= (const ValueType& _value)
-{
-	value = _value;
-	return *this;
-}
-
+template<class ValueType>
 class Grid
 {
 public:
@@ -37,56 +15,64 @@ public:
 
 	Grid(size_t _size);
 
-	Node* operator[] (int row_id);  
+	ValueType* operator[] (int row_id);  
 
-	const Node* operator[] (int row_id) const;
+	const ValueType* operator[] (int row_id) const;
+
+	ValueType& at(const Point& point);
+
+	const ValueType& at(const Point& point) const;
 
 private:
 
-	Node* root;
+	ValueType* root;
 };
 
-Grid::Grid(size_t _size) : size{_size}, root{nullptr}
+template<class ValueType>
+Grid<ValueType>::Grid(size_t _size) : size{_size}, root{nullptr}
 {
-	root = new Node[size * size];
+	root = new ValueType[size * size];
 }
 
-Node* Grid::operator[] (int row_id)
+template<class ValueType>
+ValueType* Grid<ValueType>::operator[] (int row_id)
 {
 	return root + row_id * size;
 }
 
+template<class ValueType>
+ValueType& Grid<ValueType>::at(const Point& point)
+{
+	const Grid& thisGrid = *this;
+	return const_cast<ValueType&>(thisGrid.at(point)); // avoid copypaste
+}
 
-const Node* Grid::operator[] (int row_id) const
+template<class ValueType>
+const ValueType& Grid<ValueType>::at(const Point& point) const
+{
+	return *(root + point.x * size + point.y);
+}
+
+template<class ValueType>
+const ValueType* Grid<ValueType>::operator[] (int row_id) const
 {
 	return root + row_id * size;
 }
 
-void print(const Grid& graph)
+template<class ValueType>
+void print(const Grid<ValueType>& graph)
 {
+	system("clear");
+
 	for (size_t y = 0; y < graph.size; y++)
 	{
 		for (size_t x = 0; x < graph.size; x++)
 		{
-			std::cout << graph[y][x].value << ' ';
+			std::cout << graph[y][x] << ' ';
 		}
 
 		std::cout << '\n';
 	}
+
+	std::cin.get();
 }
-
-/*
-	Path - sequence of nodes, that lead you
-	from node0 to nodeTarget
-*/
-
-struct Path
-{
-public:
-
-
-
-private:
-
-	std::vector<Node*> j;
-};

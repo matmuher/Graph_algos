@@ -4,6 +4,7 @@ project(A_star VERSION 0.1)
 add_compile_options(-Wall -Wextra -Wpedantic -ggdb)
 
 add_executable(A_star
-				src/main.cpp)
+				src/main.cpp
+				src/Point.cpp)
 
 install(TARGETS A_star DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)
