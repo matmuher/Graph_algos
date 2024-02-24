@@ -13,53 +13,56 @@ struct Node
 	Node(const ValueType& _value);
 
 	Node();
+
+	Node& operator= (const ValueType& _value);
 };
 
 Node::Node() : value{0} {}
 
-class GridGraph
+
+Node::Node(const ValueType& _value) : value{_value} {};
+
+
+Node& Node::operator= (const ValueType& _value)
+{
+	value = _value;
+	return *this;
+}
+
+class Grid
 {
 public:
  
 	const size_t size;
 
-	GridGraph(size_t _size);
+	Grid(size_t _size);
 
-	Node* operator[] (size_t row_id);  
+	Node* operator[] (int row_id);  
 
-	const Node* operator[] (size_t row_id) const;
+	const Node* operator[] (int row_id) const;
 
 private:
 
 	Node* root;
 };
 
-GridGraph::GridGraph(size_t _size) : size{_size}, root{nullptr}
+Grid::Grid(size_t _size) : size{_size}, root{nullptr}
 {
-	try
-	{
-		root = new Node[size * size];
-	}
-	catch (std::bad_alloc& except)
-	{
-		std::cerr << "Cant allocate grid of size: " << size << std::endl;
-	}
+	root = new Node[size * size];
 }
 
-Node* GridGraph::operator[] (size_t row_id)
+Node* Grid::operator[] (int row_id)
 {
 	return root + row_id * size;
 }
 
 
-const Node* GridGraph::operator[] (size_t row_id) const
+const Node* Grid::operator[] (int row_id) const
 {
 	return root + row_id * size;
 }
 
-void print(const GridGraph& graph);
-
-void print(const GridGraph& graph)
+void print(const Grid& graph)
 {
 	for (size_t y = 0; y < graph.size; y++)
 	{
@@ -71,3 +74,19 @@ void print(const GridGraph& graph)
 		std::cout << '\n';
 	}
 }
+
+/*
+	Path - sequence of nodes, that lead you
+	from node0 to nodeTarget
+*/
+
+struct Path
+{
+public:
+
+
+
+private:
+
+	std::vector<Node*> j;
+};
