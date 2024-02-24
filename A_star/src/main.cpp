@@ -19,7 +19,13 @@ int main()
 	{
 		size_t size = 5; 
 
-		Grid<int> grid{size};
+		Grid<TileType> grid{size};
+
+		grid[0][1] = TileType::Obstacle;
+		grid[1][1] = TileType::Obstacle;
+		grid[2][1] = TileType::Obstacle;
+		grid[3][1] = TileType::Obstacle;
+
 		Grid<Point> paths{size};
 
 		// print(grid);
@@ -27,7 +33,7 @@ int main()
 		std::queue<Point> nextDoors;
 
 		Point start{0, 0};
-		Point finish{2, 2};
+		Point finish{2, 0};
 
 		nextDoors.push(start);
 
@@ -36,7 +42,7 @@ int main()
 			Point current = nextDoors.front();
 			nextDoors.pop();
 
-			grid.at(current) = 1;
+			grid.at(current) = TileType::Checked;
 
 			if (current == finish)
 			{
@@ -48,11 +54,12 @@ int main()
 				Point neighbour = current + shift;
 
 				if (lessEqualThan(Zeros, neighbour) && lessThan(neighbour, Point{size}) &&
-					grid.at(neighbour) != 1 &&
-					grid.at(neighbour) != 8)
+					grid.at(neighbour) != TileType::Checked &&
+					grid.at(neighbour) != TileType::InProgress &&
+					grid.at(neighbour) != TileType::Obstacle)
 				{
 					paths.at(neighbour) = current;
-					grid.at(neighbour) = 8;
+					grid.at(neighbour) = TileType::InProgress;
 					nextDoors.push(neighbour);
 				}
 			}
@@ -60,14 +67,14 @@ int main()
 			// print(paths);
 		}
 
-		grid.at(start) = 5;
-		grid.at(finish) = 5;
+		grid.at(start) = TileType::Path;
+		grid.at(finish) = TileType::Path;
 
 		Point currCell = paths.at(finish);
 		
 		while(currCell != start)
 		{
-			grid.at(currCell) = 5;
+			grid.at(currCell) = TileType::Path;
 
 			Point prevCell = paths.at(currCell);
 

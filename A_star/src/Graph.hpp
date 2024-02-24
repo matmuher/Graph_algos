@@ -6,6 +6,58 @@
 
 #include "Point.hpp"
 
+enum class TileType
+{
+	Unknown,
+	Obstacle,
+	Free,
+	Path,
+
+// Algo state enum
+
+	Checked,
+	InProgress
+};
+
+std::ostream& operator<< (std::ostream& cout, TileType tileType)
+{
+	switch(tileType)
+	{
+		case TileType::Obstacle:
+
+			cout << 'X';
+			break;
+
+		case TileType::Free:
+
+			cout << 'F';
+			break;
+
+		case TileType::Path:
+
+			cout << 'P';
+			break;
+
+		case TileType::Checked:
+
+			cout << 'C';
+			break;
+
+		case TileType::InProgress:
+
+			cout << 'I';
+			break;
+	
+		case TileType::Unknown:
+		default:
+
+			cout << '?';
+			break;
+	}
+
+	return cout;
+}
+
 template<class ValueType>
 class Grid
 {
@@ -50,7 +102,7 @@ ValueType& Grid<ValueType>::at(const Point& point)
 template<class ValueType>
 const ValueType& Grid<ValueType>::at(const Point& point) const
 {
-	return *(root + point.x * size + point.y);
+	return *(root + point.y * size + point.x);
 }
 
 template<class ValueType>
