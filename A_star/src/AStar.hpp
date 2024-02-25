@@ -14,6 +14,9 @@ public:
 	using Heuristic = std::function<int(Point point, int pointCost, Point end)>;
 
 	AStar(	const Grid<Tile>& map,
+			const Grid<int>& tileCosts);
+
+	AStar(	const Grid<Tile>& map,
 			const Grid<int>& tileCosts,
 			Point start,
 			Point end,
@@ -38,6 +41,7 @@ public:
 	const Grid<AlgoState>& state() const;
 	const Grid<Point>& pathsToStart() const;
 	const Grid<int>& pathCosts() const;
+	const Grid<MoveDirection>& moveDirections() const;
 
 private:
 
@@ -52,6 +56,7 @@ private:
 	Grid<AlgoState> state_;
 	Grid<Point> pathsToStart_;
 	Grid<int> pathCosts_;
+	Grid<MoveDirection> moveDirections_;
 
 // [Search params]
 
@@ -71,8 +76,11 @@ private:
 	bool isInBoundaries(const Point& point) const;
 
 	bool isUnprocessed(const Point& point) const;
+
+	void dump() const;
 };
 
-Grid<Results> getResults(	const Grid<Point>& paths,
+Grid<Results> getResults(	const Grid<MoveDirection>& directions,
+							const Grid<Point>& paths,
 							const Point& start,
 							const Point& finish);

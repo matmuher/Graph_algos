@@ -55,6 +55,11 @@ int distanceManhattan(const Point& lhs, const Point& rhs)
 }
 
 
+int distanceEuclidian(const Point& lhs, const Point& rhs)
+{
+	return sqrt(dot(lhs - rhs, lhs - rhs));
+}
+
 WeightedPoint::WeightedPoint(const Point& _point, int _weight)
 :
 	point{_point},

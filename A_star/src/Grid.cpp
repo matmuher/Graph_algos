@@ -1,22 +1,48 @@
 #include "Grid.hpp"
 #include "Point.hpp"
 
-template<class ValueType>
-Grid<ValueType>::Grid(size_t _size) : size{_size}, root{nullptr}
-{
-	root = new ValueType[size * size]; // what if I want to call special constructor?
-}
+#include <cstring>
+#include <algorithm>
 
 template<class ValueType>
-Grid<ValueType>::~Grid()
+Grid<ValueType>::Grid(size_t _size)
+:
+	size{_size},
+	root{nullptr}
 {
-	delete[] root;
+	root = new ValueType[size * size]; // what if I want to call special constructor?
 }
 
 template<class ValueType>
 Grid<ValueType>::Grid(size_t _size, ValueType filler) : Grid(_size)
 {
 	fill(filler);
+}
+
+template<class ValueType>
+Grid<ValueType>::Grid(const Grid& other)
+:
+	Grid(other.size)
+{
+	std::cout << "Copy ctor\n";
+	std::memcpy(this->root, other.root, sizeof(ValueType) * size * size);
+}
+
+template<class ValueType>
+Grid<ValueType>::Grid(Grid&& other)
+:
+	size{other.size},
+	root{nullptr}
+{
+	std::cout << "Move ctor\n";
+	std::swap(this->root, other.root);
+	const_cast<size_t&>(other.size) = 0;
+}
+
+template<class ValueType>
+Grid<ValueType>::~Grid()
+{
+	delete[] root;
 }
 
 template<class ValueType>
@@ -67,3 +93,4 @@ template class Grid<Point>;
 template class Grid<AlgoState>;
 template class Grid<Tile>;
 template class Grid<Results>;
+template class Grid<MoveDirection>;

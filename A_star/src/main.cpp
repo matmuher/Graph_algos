@@ -1,6 +1,12 @@
 #include "AStar.hpp"
 #include "Grid.hpp"
 #include "Point.hpp"
+#include "Print.hpp"
+
+#include <vector>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 int heuristicManhattan (Point point, int pointCost, Point end)
 {
@@ -8,32 +14,68 @@ int heuristicManhattan (Point point, int pointCost, Point end)
 			distanceManhattan(point, end);
 };
 
+int heuristicEuclidian (Point point, int pointCost, Point end)
+{
+	return 	pointCost +
+			distanceEuclidian(point, end);
+};
+
+int heuristicBFS (Point point, int pointCost, Point end)
+{
+	return 0; // all neighbours are equal: priority queue -> queue
+}
+
+int heuristicDFS (Point point, int pointCost, Point end)
+{
+	static int C = std::numeric_limits<int>::max();
+
+	C -= 1;
+	return C; 
+}
+#pragma GCC diagnostic pop
+
 int main()
 {
-	size_t size = 5; // read map
+	size_t size = 10; // read map
 
-	Grid<Tile> map{size}; 	// it would be convinient to give list of neccessary layers
-							// when craete grid. builder pattern?
-	map.at({2, 0}) = Tile::Obstacle;
+	Grid<Tile> map{size};
+
+	map.at({4, 0}) = Tile::Obstacle;
+	map.at({4, 1}) = Tile::Obstacle;
+	map.at({4, 2}) = Tile::Obstacle;
+	map.at({4, 3}) = Tile::Obstacle;
+	map.at({4, 4}) = Tile::Obstacle;
+
+	// map.at({1, 4}) = Tile::Obstacle;
+	// map.at({2, 4}) = Tile::Obstacle;
+	// map.at({3, 4}) = Tile::Obstacle;
+	// map.at({4, 4}) = Tile::Obstacle;
+
+	print(map);
 
 	Grid<int> tileCosts{size, 1};
-	print(tileCosts);
 
 	Point start{0, 0};
-	Point end{4, 0};
+	Point end{6, 0};
 
 	try
 	{
-		AStar astar{map, tileCosts, start, end, heuristicManhattan};
+		std::vector<AStar::Heuristic> heuristics{	heuristicBFS,
+													heuristicDFS};
 
-		while(astar.makeStep())
+		AStar astar{map, tileCosts};
+
+		for (AStar::Heuristic heuristic : heuristics)
 		{
-			print(astar.state());
+			astar.search(start, end, heuristic);
+
+			// print(astar.pathsToStart());
+			Grid<Results> results = getResults(	astar.moveDirections(),
+												astar.pathsToStart(),
+												start,
+												end);
+			print(results);
 		}
-
-		Grid<Results> results = getResults(astar.pathsToStart(), start, end);
-
-		print(results);
 	}
 	catch (std::bad_alloc& except)
 	{

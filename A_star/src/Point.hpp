@@ -1,6 +1,6 @@
 #pragma once
 
-#include <array>
+#include <map>
 #include <iostream>
 
 struct Point
@@ -31,6 +31,7 @@ int dot(const Point& lhs, const Point& rhs);
 
 int distanceManhattan(const Point& lhs, const Point& rhs);
 
+int distanceEuclidian(const Point& lhs, const Point& rhs);
 
 struct WeightedPoint
 {
@@ -45,4 +46,3 @@ bool operator<(const WeightedPoint& lhs, const WeightedPoint& rhs);
 
 extern const Point Ones;
 extern const Point Zeros;
-extern const std::array<Point, 4> shifts;

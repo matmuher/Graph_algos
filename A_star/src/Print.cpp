@@ -77,10 +77,56 @@ std::ostream& operator<< (std::ostream& cout, Results results)
 	return cout;
 }
 
+
+std::ostream& operator<< (std::ostream& cout, MoveDirection direction)
+{
+	switch(direction)
+	{
+		case MoveDirection::Up:
+
+			cout << '^';
+			break;
+
+		case MoveDirection::Down:
+
+			cout << 'v';
+			break;
+
+
+		case MoveDirection::Left:
+
+			cout << '<';
+			break;
+
+
+		case MoveDirection::Right:
+
+			cout << '>';
+			break;
+
+		case MoveDirection::Start:
+
+			cout << '!';
+			break;
+
+		case MoveDirection::End:
+
+			cout << '%';
+			break; 
+
+		default: // default - copypaste
+
+			cout << 'o';
+			break;
+	}
+
+	return cout;
+}
+
 template<class ValueType>
 void print(const Grid<ValueType>& graph)
 {
-	system("clear");
+	// system("clear");
 
 	for (size_t y = 0; y < graph.size; y++)
 	{
@@ -101,3 +147,4 @@ template void print<Point>(const Grid<Point>& graph);
 template void print<AlgoState>(const Grid<AlgoState>& graph);
 template void print<Tile>(const Grid<Tile>& graph);
 template void print<Results>(const Grid<Results>& graph);
+template void print<MoveDirection>(const Grid<MoveDirection>& graph);

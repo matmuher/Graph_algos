@@ -1,10 +1,8 @@
 #include "AStar.hpp"
+#include "Print.hpp"
 
 AStar::AStar(	const Grid<Tile>& map,
-				const Grid<int>& tileCosts,
-				Point start,
-				Point end,
-				Heuristic heuristic)
+				const Grid<int>& tileCosts)
 :
 	size_{map.size},
 
@@ -13,7 +11,17 @@ AStar::AStar(	const Grid<Tile>& map,
 	
 	state_{size_},
 	pathsToStart_{size_},
-	pathCosts_{size_}
+	pathCosts_{size_},
+	moveDirections_{size_}
+{}
+
+AStar::AStar(	const Grid<Tile>& map,
+				const Grid<int>& tileCosts,
+				Point start,
+				Point end,
+				Heuristic heuristic)
+:
+	AStar(map, tileCosts)
 {
 	initSearch(start, end, heuristic);
 }
@@ -38,13 +46,14 @@ bool AStar::makeStep()
 
 	if (current == end_)
 	{
+		moveDirections_.at(end_) = MoveDirection::End;
 		isInit_ = false;
 		return false;
 	}
 
-	for (Point shift : shifts)
+	for (auto shift : shifts)
 	{
-		Point neighbour = current + shift;
+		Point neighbour = current + shift.second;
 		int neighbourProbableCost = pathCosts_.at(current) +
 									heuristic_(neighbour, tileCosts_.at(neighbour), end_);
 
@@ -53,7 +62,9 @@ bool AStar::makeStep()
 			isUnprocessed(neighbour) &&
 			neighbourProbableCost < pathCosts_.at(neighbour))
 		{
+			moveDirections_.at(neighbour) = shift.first;
 			pathsToStart_.at(neighbour) = current;
+
 			state_.at(neighbour) = AlgoState::InProgress;
 			pathCosts_.at(neighbour) = neighbourProbableCost;
 
@@ -77,6 +88,11 @@ const Grid<Point>& AStar::pathsToStart() const
 const Grid<int>& AStar::pathCosts() const
 {
 	return pathCosts_;
+}
+
+const Grid<MoveDirection>& AStar::moveDirections() const
+{
+	return moveDirections_;
 }
 
 bool AStar::isInBoundaries(const Point& point) const
@@ -115,34 +131,55 @@ void AStar::initSearch(Point start, Point end, Heuristic heuristic)
 	state_.fill(AlgoState::Free);
 	pathsToStart_.fill(PathPoison);
 	pathCosts_.fill(MaxCost);
+	moveDirections_.fill(MoveDirection::No);
 
 	pathCosts_.at(start_) = 0;
+	moveDirections_.at(start_) = MoveDirection::Start;
+	moveDirections_.at(end_) = MoveDirection::End;
 
 	clearQueue(weightedNextDoors_);
 	weightedNextDoors_.emplace(start_, 0);
 
 	isInit_ = true;
+
+	// dump();
 }
 
-Grid<Results> getResults(	const Grid<Point>& paths,
+Grid<Results> getResults(	const Grid<MoveDirection>& directions,
+							const Grid<Point>& paths,
 							const Point& start,
 							const Point& finish)
 {
-	Grid<Results> results{paths.size};
+	Grid<Results> results{paths.size, Results::Free};
+	Grid<MoveDirection> resultPath{paths.size, MoveDirection::No};
 
 	results.at(start) = Results::Path;
 	results.at(finish) = Results::Path;
 
 	Point currCell = paths.at(finish);
 	
+	resultPath.at(finish) = MoveDirection::End;
+	resultPath.at(start) = MoveDirection::Start;
+
 	while(currCell != start)
 	{
 		results.at(currCell) = Results::Path;
+		resultPath.at(currCell) = directions.at(currCell);
 
 		Point prevCell = paths.at(currCell);
 
 		currCell = prevCell;
 	}
 
+	print(resultPath);
+
 	return results;
+}
+
+
+void AStar::dump() const
+{
+	print(state_);
+	print(pathCosts_);
+	print(pathsToStart_);
 }

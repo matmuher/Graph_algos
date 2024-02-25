@@ -26,6 +26,17 @@ enum class Results
 	Path
 };
 
+enum class MoveDirection
+{
+	No,
+	Up,
+	Down,
+	Left,
+	Right,
+	Start,
+	End
+};
+
 template<class ValueType>
 class Grid
 {
@@ -36,6 +47,10 @@ public:
 	Grid(size_t _size);
 
 	Grid(size_t _size, ValueType filler);
+
+	Grid(const Grid& other);
+
+	Grid(Grid&& other);
 
 	void fill(ValueType filler);
 
@@ -55,3 +70,5 @@ private:
 
 	ValueType* root;
 };
+
+extern const std::map<MoveDirection, Point> shifts;
