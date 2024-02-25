@@ -3,6 +3,7 @@
 #include <array>
 #include <iostream>
 
+
 struct Point
 {
 	int x;
@@ -28,6 +29,20 @@ bool lessThan(const Point& lhs, const Point& rhs);
 bool lessEqualThan(const Point& lhs, const Point& rhs);
 
 int dot(const Point& lhs, const Point& rhs);
+
+int distanceManhattan(const Point& lhs, const Point& rhs);
+
+
+struct WeightedPoint
+{
+	Point point;
+	int weight;
+
+	WeightedPoint(const Point& _point, int _weight);
+};
+
+bool operator<(const WeightedPoint& lhs, const WeightedPoint& rhs);
+
 
 extern const Point Ones;
 extern const Point Zeros;

@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "Point.hpp"
 
 Point::Point(int _x, int _y) : x{_x}, y{_y} {}
@@ -44,6 +46,24 @@ bool lessEqualThan(const Point& lhs, const Point& rhs)
 int dot(const Point& lhs, const Point& rhs)
 {
 	return lhs.x * rhs.x + lhs.y * rhs.y;
+}
+
+
+int distanceManhattan(const Point& lhs, const Point& rhs)
+{
+	return abs(lhs.x - rhs.x) + abs(lhs.y - rhs.y);
+}
+
+
+WeightedPoint::WeightedPoint(const Point& _point, int _weight)
+:
+	point{_point},
+	weight{_weight}
+{}
+
+bool operator<(const WeightedPoint& lhs, const WeightedPoint& rhs)
+{
+	return lhs.weight > rhs.weight;
 }
 
 const Point Ones{1, 1};

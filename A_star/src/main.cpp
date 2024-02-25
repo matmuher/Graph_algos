@@ -4,129 +4,179 @@
 #include <limits>
 #include <queue>
 #include <cmath>
+#include <functional>
 
 #include "Graph.hpp"
 
-struct WeightedPoint
+// for obtaining algo info on every step
+struct AStar
 {
-	Point point;
-	int weight;
+private:
 
-	WeightedPoint(const Point& _point, int _weight) : point{_point}, weight{_weight} {}
-};
-
-bool operator<(const WeightedPoint& lhs, const WeightedPoint& rhs)
-{
-	return lhs.weight > rhs.weight;
-}
-
-/*
-	For path finding I want to store
-	history of each 	
-
-*/
-
-using ValueType = int;
-
-class Bloodhound // aka "isheika"
-{
-	// ending node points to its predecessor
-	virtual Grid<Point> findPath(const Point& start, const Point& end) = 0;
-};
-
-int main()
-{
-	try
+	bool isInBoundaries(const Point& point)
 	{
+		return 	lessEqualThan(Zeros, point) &&
+				lessThan(point, Point{size});
+	}
 
-// [create layers]
+	bool isUnprocessed(const Point& point)
+	{
+		return 	state.at(point) != AlgoState::Checked &&
+				state.at(point) != AlgoState::InProgress;
+	}
 
-		size_t size = 5; 
+public:
 
-		Grid<Tile> map{size}; 	// it would be convinient to give list of neccessary layers
-								// when craete grid. builder pattern?
-		Grid<AlgoState> state{size};
-		Grid<Point> paths{size};
-		Grid<Results> results{size};
-		Grid<int> costs{size, 1};
-		Grid<int> pathCosts{size, 1000};
+	const int MaxCost = std::numeric_limits<int>::max();
+	const int DefaultCost = 1;
 
-		// map[0][1] = Tile::Obstacle; // add read from file
-		// map[1][1] = Tile::Obstacle;
-		// map[2][1] = Tile::Obstacle;
-		// map[3][1] = Tile::Obstacle;
+// [Init Conditions]
 
-		pathCosts.at({0, 0}) = 0;
+	const size_t size;
 
-// [Dijkstra]
+	const Grid<Tile>& map;
 
-		std::priority_queue<WeightedPoint> weightedNextDoors;
+	const Point& start;
+	const Point& end;
 
-		Point start{0, 0};
-		Point finish{4, 0};
+	const std::function<int(Point point, int pointCost, Point end)> heuristic;
 
-		costs.at({0, 1}) = 1;
-		costs.at({0, 2}) = 1;
+// [Temporal Resources] 
 
-		costs.at({1, 1}) = 1;
-		costs.at({1, 2}) = 1;
+	Grid<AlgoState> state;
+
+	Grid<Point> pathsToStart;
+	
+	Grid<int> tileCosts;
+	Grid<int> pathCosts;
+
+	std::priority_queue<WeightedPoint> weightedNextDoors;
+
+	AStar(	const Grid<Tile>& _map,
+			const Point& _start,
+			const Point& _end,
+			std::function<int(Point point, int pointCost, Point end)> _heuristic)
+	:
+		size{_map.size},
+
+		map{_map},
+		
+		start{_start},
+		end{_end},
+
+		heuristic{_heuristic},
+
+		state{size},
+
+		pathsToStart{size},
+
+		tileCosts{size, DefaultCost},
+		pathCosts{size, MaxCost}
+	{
+		pathCosts.at(start) = 0;
 
 		weightedNextDoors.emplace(start, pathCosts.at(start));
+	}
 
-		while(!weightedNextDoors.empty())
+	bool makeStep()
+	{
+		if (!weightedNextDoors.empty())
 		{
 			Point current = weightedNextDoors.top().point; // choose point with the least cost
 			weightedNextDoors.pop();
 
 			state.at(current) = AlgoState::Checked;
 
-			if (current == finish)
+			if (current == end)
 			{
-				break;
+				return false;
 			}
-
-			auto f = [&](Point point)
-						{
-							return costs.at(point) + dot(point - finish, point - finish);
-						}; 
 
 			for (Point shift : shifts)
 			{
 				Point neighbour = current + shift;
+				int neighbourProbableCost = pathCosts.at(current) +
+											heuristic(neighbour, tileCosts.at(neighbour), end);
 
-				if (lessEqualThan(Zeros, neighbour) && lessThan(neighbour, Point{size}) &&
-					state.at(neighbour) != AlgoState::Checked &&
-					state.at(neighbour) != AlgoState::InProgress &&
+				if (isInBoundaries(neighbour) &&
 					map.at(neighbour) != Tile::Obstacle &&
-					pathCosts.at(current) + f(neighbour) < pathCosts.at(neighbour)) // add to queue only if path is shorter
+					isUnprocessed(neighbour) &&
+					neighbourProbableCost < pathCosts.at(neighbour))
 				{
-					paths.at(neighbour) = current;
+					pathsToStart.at(neighbour) = current;
 					state.at(neighbour) = AlgoState::InProgress;
-					pathCosts.at(neighbour) = pathCosts.at(current) + f(neighbour);
+					pathCosts.at(neighbour) = neighbourProbableCost;
 
-					weightedNextDoors.emplace(neighbour, pathCosts.at(neighbour));
+					weightedNextDoors.emplace(neighbour, pathCosts.at(neighbour)); // how emplace works?
 				}
 			}
 
-			print(state);
+			return true;
 		}
-
-		results.at(start) = Results::Path;
-		results.at(finish) = Results::Path;
-
-		Point currCell = paths.at(finish);
-		
-		while(currCell != start)
+		else
 		{
-			results.at(currCell) = Results::Path;
+			return false;
+		}
+	}
 
-			Point prevCell = paths.at(currCell);
+	Grid<Point> search()
+	{
+		while(makeStep()) {;}
+	}
+};
 
-			currCell = prevCell;
+Grid<Results> getResults(	const Grid<Point>& paths,
+							const Point& start,
+							const Point& finish)
+{
+	Grid<Results> results{paths.size};
+
+	results.at(start) = Results::Path;
+	results.at(finish) = Results::Path;
+
+	Point currCell = paths.at(finish);
+	
+	while(currCell != start)
+	{
+		results.at(currCell) = Results::Path;
+
+		Point prevCell = paths.at(currCell);
+
+		currCell = prevCell;
+	}
+
+	return results;
+}
+
+int main()
+{
+	size_t size = 5; // read map
+
+	Grid<Tile> map{size}; 	// it would be convinient to give list of neccessary layers
+							// when craete grid. builder pattern?
+	map.at({2, 0}) = Tile::Obstacle;
+
+	Point start{0, 0};
+	Point end{4, 0};
+
+	auto heuristicManhattan = [](Point point, int pointCost, Point end)
+									{
+										return 	pointCost +
+												distanceManhattan(point, end);
+									};
+	
+	try
+	{
+		AStar astar{map, start, end, heuristicManhattan};
+
+		while(astar.makeStep())
+		{
+			print(astar.state);
 		}
 
-		print(results); // add effect of transparenc to draw layer up layer
-						// or priority drawing 
+		Grid<Results> results = getResults(astar.pathsToStart, start, end);
+
+		print(results);
 	}
 	catch (std::bad_alloc& except)
 	{
