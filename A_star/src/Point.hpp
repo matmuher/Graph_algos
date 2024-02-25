@@ -3,7 +3,6 @@
 #include <array>
 #include <iostream>
 
-
 struct Point
 {
 	int x;
