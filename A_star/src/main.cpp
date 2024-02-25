@@ -3,6 +3,7 @@
 #include <array>
 #include <limits>
 #include <queue>
+#include <cmath>
 
 #include "Graph.hpp"
 
@@ -27,6 +28,12 @@ bool operator<(const WeightedPoint& lhs, const WeightedPoint& rhs)
 
 using ValueType = int;
 
+class Bloodhound // aka "isheika"
+{
+	// ending node points to its predecessor
+	virtual Grid<Point> findPath(const Point& start, const Point& end) = 0;
+};
+
 int main()
 {
 	try
@@ -42,7 +49,7 @@ int main()
 		Grid<Point> paths{size};
 		Grid<Results> results{size};
 		Grid<int> costs{size, 1};
-		Grid<int> pathCosts{size, 90};
+		Grid<int> pathCosts{size, 1000};
 
 		// map[0][1] = Tile::Obstacle; // add read from file
 		// map[1][1] = Tile::Obstacle;
@@ -56,13 +63,13 @@ int main()
 		std::priority_queue<WeightedPoint> weightedNextDoors;
 
 		Point start{0, 0};
-		Point finish{0, 3};
+		Point finish{4, 0};
 
 		costs.at({0, 1}) = 1;
-		costs.at({0, 2}) = 7;
+		costs.at({0, 2}) = 1;
 
 		costs.at({1, 1}) = 1;
-		costs.at({1, 2}) = 5;
+		costs.at({1, 2}) = 1;
 
 		weightedNextDoors.emplace(start, pathCosts.at(start));
 
@@ -74,9 +81,14 @@ int main()
 			state.at(current) = AlgoState::Checked;
 
 			if (current == finish)
-			{;
-				// break;
+			{
+				break;
 			}
+
+			auto f = [&](Point point)
+						{
+							return costs.at(point) + dot(point - finish, point - finish);
+						}; 
 
 			for (Point shift : shifts)
 			{
@@ -86,17 +98,17 @@ int main()
 					state.at(neighbour) != AlgoState::Checked &&
 					state.at(neighbour) != AlgoState::InProgress &&
 					map.at(neighbour) != Tile::Obstacle &&
-					pathCosts.at(current) + costs.at(neighbour) < pathCosts.at(neighbour)) // add to queue only if path is shorter
+					pathCosts.at(current) + f(neighbour) < pathCosts.at(neighbour)) // add to queue only if path is shorter
 				{
 					paths.at(neighbour) = current;
 					state.at(neighbour) = AlgoState::InProgress;
-					pathCosts.at(neighbour) = pathCosts.at(current) + costs.at(neighbour);
+					pathCosts.at(neighbour) = pathCosts.at(current) + f(neighbour);
 
 					weightedNextDoors.emplace(neighbour, pathCosts.at(neighbour));
 				}
 			}
 
-			// print(pathCosts);
+			print(state);
 		}
 
 		results.at(start) = Results::Path;

@@ -9,6 +9,11 @@ Point operator+(const Point& lhs, const Point& rhs)
 	return Point{lhs.x + rhs.x, lhs.y + rhs.y};
 }
 
+Point operator-(const Point& lhs, const Point& rhs)
+{
+	return Point{lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
 bool operator==(const Point& lhs, const Point& rhs)
 {
 	return (lhs.x == rhs.x) && (lhs.y == rhs.y);
@@ -34,6 +39,11 @@ bool lessThan(const Point& lhs, const Point& rhs)
 bool lessEqualThan(const Point& lhs, const Point& rhs)
 {
 	return (lhs.x <= rhs.x) && (lhs.y <= rhs.y);
+}
+
+int dot(const Point& lhs, const Point& rhs)
+{
+	return lhs.x * rhs.x + lhs.y * rhs.y;
 }
 
 const Point Ones{1, 1};

@@ -124,6 +124,8 @@ public:
 
 	const ValueType& at(const Point& point) const;
 
+	~Grid();
+
 private:
 
 	ValueType* root;
@@ -133,6 +135,12 @@ template<class ValueType>
 Grid<ValueType>::Grid(size_t _size) : size{_size}, root{nullptr}
 {
 	root = new ValueType[size * size]; // what if I want to call special constructor?
+}
+
+template<class ValueType>
+Grid<ValueType>::~Grid()
+{
+	delete[] root;
 }
 
 template<class ValueType>

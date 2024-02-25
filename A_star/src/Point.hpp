@@ -15,6 +15,8 @@ struct Point
 
 Point operator+(const Point& lhs, const Point& rhs);
 
+Point operator-(const Point& lhs, const Point& rhs);
+
 bool operator==(const Point& lhs, const Point& rhs);
 
 bool operator!=(const Point& lhs, const Point& rhs);
@@ -24,6 +26,8 @@ std::ostream& operator<< (std::ostream& cout, const Point& point);
 bool lessThan(const Point& lhs, const Point& rhs);
 
 bool lessEqualThan(const Point& lhs, const Point& rhs);
+
+int dot(const Point& lhs, const Point& rhs);
 
 extern const Point Ones;
 extern const Point Zeros;
