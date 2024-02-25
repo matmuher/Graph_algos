@@ -110,6 +110,12 @@ public:
 
 	Grid(size_t _size);
 
+	Grid(size_t _size, ValueType filler);
+
+	void fill(ValueType filler);
+
+	void clear();
+
 	ValueType* operator[] (int row_id);  
 
 	const ValueType* operator[] (int row_id) const;
@@ -126,7 +132,28 @@ private:
 template<class ValueType>
 Grid<ValueType>::Grid(size_t _size) : size{_size}, root{nullptr}
 {
-	root = new ValueType[size * size];
+	root = new ValueType[size * size]; // what if I want to call special constructor?
+}
+
+template<class ValueType>
+Grid<ValueType>::Grid(size_t _size, ValueType filler) : Grid(_size)
+{
+	fill(filler);
+}
+
+template<class ValueType>
+void Grid<ValueType>::fill(ValueType filler)
+{
+	for(int tile_id = 0; tile_id < size * size; tile_id++)
+	{
+		root[tile_id] = filler;
+	}
+}
+
+template<class ValueType>
+void Grid<ValueType>::clear()
+{
+	fill(ValueType());
 }
 
 template<class ValueType>

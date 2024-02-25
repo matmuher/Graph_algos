@@ -1,11 +1,25 @@
 #include <queue>
 #include <iostream>
 #include <array>
+#include <limits>
+#include <queue>
 
 #include "Graph.hpp"
 
-/*
+struct WeightedPoint
+{
+	Point point;
+	int weight;
 
+	WeightedPoint(const Point& _point, int _weight) : point{_point}, weight{_weight} {}
+};
+
+bool operator<(const WeightedPoint& lhs, const WeightedPoint& rhs)
+{
+	return lhs.weight > rhs.weight;
+}
+
+/*
 	For path finding I want to store
 	history of each 	
 
@@ -27,31 +41,41 @@ int main()
 		Grid<AlgoState> state{size};
 		Grid<Point> paths{size};
 		Grid<Results> results{size};
+		Grid<int> costs{size, 1};
+		Grid<int> pathCosts{size, 90};
 
-		map[0][1] = Tile::Obstacle;
-		map[1][1] = Tile::Obstacle;
-		map[2][1] = Tile::Obstacle;
-		map[3][1] = Tile::Obstacle;
+		// map[0][1] = Tile::Obstacle; // add read from file
+		// map[1][1] = Tile::Obstacle;
+		// map[2][1] = Tile::Obstacle;
+		// map[3][1] = Tile::Obstacle;
 
-// [BFS]
+		pathCosts.at({0, 0}) = 0;
 
-		std::queue<Point> nextDoors;
+// [Dijkstra]
+
+		std::priority_queue<WeightedPoint> weightedNextDoors;
 
 		Point start{0, 0};
-		Point finish{2, 0};
+		Point finish{0, 3};
 
-		nextDoors.push(start);
+		costs.at({0, 1}) = 1;
+		costs.at({0, 2}) = 7;
 
-		while(!nextDoors.empty())
+		costs.at({1, 1}) = 1;
+		costs.at({1, 2}) = 5;
+
+		weightedNextDoors.emplace(start, pathCosts.at(start));
+
+		while(!weightedNextDoors.empty())
 		{
-			Point current = nextDoors.front();
-			nextDoors.pop();
+			Point current = weightedNextDoors.top().point; // choose point with the least cost
+			weightedNextDoors.pop();
 
 			state.at(current) = AlgoState::Checked;
 
 			if (current == finish)
-			{
-				break;
+			{;
+				// break;
 			}
 
 			for (Point shift : shifts)
@@ -61,16 +85,18 @@ int main()
 				if (lessEqualThan(Zeros, neighbour) && lessThan(neighbour, Point{size}) &&
 					state.at(neighbour) != AlgoState::Checked &&
 					state.at(neighbour) != AlgoState::InProgress &&
-					map.at(neighbour) != Tile::Obstacle)
+					map.at(neighbour) != Tile::Obstacle &&
+					pathCosts.at(current) + costs.at(neighbour) < pathCosts.at(neighbour)) // add to queue only if path is shorter
 				{
 					paths.at(neighbour) = current;
 					state.at(neighbour) = AlgoState::InProgress;
+					pathCosts.at(neighbour) = pathCosts.at(current) + costs.at(neighbour);
 
-					nextDoors.push(neighbour);
+					weightedNextDoors.emplace(neighbour, pathCosts.at(neighbour));
 				}
 			}
 
-			// print(paths);
+			// print(pathCosts);
 		}
 
 		results.at(start) = Results::Path;
@@ -87,19 +113,8 @@ int main()
 			currCell = prevCell;
 		}
 
-		print(results);
-
-		// PathBFS = SearchBFS(grid, start, end);
-
-		// PathDFS = SearchDFS(grid, start, end);
-
-		// PathAStar = SearchAStar(grid, start, end);
-
-		// print(PathBFS);
-
-		// print(PathDFS);
-
-		// print(PathAStar);
+		print(results); // add effect of transparenc to draw layer up layer
+						// or priority drawing 
 	}
 	catch (std::bad_alloc& except)
 	{
