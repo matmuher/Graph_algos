@@ -11,4 +11,6 @@ add_executable(A_star
 				src/Grid.cpp
 				src/Print.cpp)
 
+target_link_libraries(A_star glfw GL X11 pthread Xrandr Xi dl)
+
 install(TARGETS A_star DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/bin)

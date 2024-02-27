@@ -7,10 +7,11 @@
 #include <vector>
 
 /*
-	Make text description
+	Add text description?
 
 	Add Drawing?
 	Add UI?
+	Add reversing of actions?
 */
 
 #pragma GCC diagnostic push
@@ -42,7 +43,89 @@ int heuristicDFS (Point point, int pointCost, Point end)
 }
 #pragma GCC diagnostic pop
 
+// #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+namespace GLFW
+{
+	struct ScopeGuard
+	{
+		ScopeGuard()
+		{
+			glfwInit();
+		}
+
+		~ScopeGuard()
+		{
+			glfwTerminate();	
+		}
+	};
+
+	static void initOpenGL(int versionMajor, int versionMinor)
+	{
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, versionMajor);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, versionMinor);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	}
+
+	struct Window
+	{
+		GLFWwindow* window = nullptr;
+
+		Window(int width, int height, const char* title)
+		{
+			window = glfwCreateWindow(width, height, title, NULL, NULL);
+		
+			if (!window)
+			{
+				throw "Cant create glfw window";
+			}
+		}
+
+		void makeContextCurrent()
+		{
+			glfwMakeContextCurrent(window);
+		}
+
+		bool shouldClose()
+		{
+			return glfwWindowShouldClose(window);
+		}
+
+		void swapBuffers()
+		{
+			glfwSwapBuffers(window);
+		}
+	};
+
+	void pollEvents()
+	{
+		glfwPollEvents();
+	}
+}
+
 int main()
+{
+	GLFW::ScopeGuard scopeGuard;
+
+	GLFW::initOpenGL(3, 3);
+
+	const int Width = 800;
+	const int Height = 800;
+	const char* Title = "Pathfinder";
+
+	GLFW::Window window{Width, Height, Title};
+
+	window.makeContextCurrent();
+
+	while(!window.shouldClose())
+	{
+		window.swapBuffers();
+		GLFW::pollEvents();
+	}
+}
+
+int main1()
 {
 	size_t size = 20; // read map
 
