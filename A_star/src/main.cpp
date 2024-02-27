@@ -43,7 +43,7 @@ int heuristicDFS (Point point, int pointCost, Point end)
 }
 #pragma GCC diagnostic pop
 
-// #include <glad/glad.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 namespace GLFW
@@ -117,6 +117,11 @@ int main()
 	GLFW::Window window{Width, Height, Title};
 
 	window.makeContextCurrent();
+
+	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+	{
+		throw "Glad cant load GL functions";
+	}
 
 	while(!window.shouldClose())
 	{
