@@ -79,8 +79,3 @@ private:
 
 	void dump() const;
 };
-
-Grid<Results> getResults(	const Grid<MoveDirection>& directions,
-							const Grid<Point>& paths,
-							const Point& start,
-							const Point& finish);

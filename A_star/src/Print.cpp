@@ -12,7 +12,7 @@ std::ostream& operator<< (std::ostream& cout, Tile tileType)
 
 		case Tile::Free:
 
-			cout << 'F';
+			cout << '-';
 			break;
 
 		case Tile::Unknown:
@@ -32,17 +32,17 @@ std::ostream& operator<< (std::ostream& cout, AlgoState algoState)
 	{
 		case AlgoState::Checked:
 
-			cout << 'C';
+			cout << '@';
 			break;
 
 		case AlgoState::InProgress:
 
-			cout << 'I';
+			cout << '*';
 			break;
 
 		case AlgoState::Free:
 
-			cout << '0';
+			cout << '-';
 			break;
 
 		default:
@@ -53,30 +53,6 @@ std::ostream& operator<< (std::ostream& cout, AlgoState algoState)
 
 	return cout;
 }
-
-std::ostream& operator<< (std::ostream& cout, Results results)
-{
-	switch(results)
-	{
-		case Results::Path:
-
-			cout << 'V';
-			break;
-
-		case Results::Free:
-
-			cout << 'o';
-			break;
-
-		default: // default - copypaste
-
-			cout << '?';
-			break;
-	}
-
-	return cout;
-}
-
 
 std::ostream& operator<< (std::ostream& cout, MoveDirection direction)
 {
@@ -104,19 +80,9 @@ std::ostream& operator<< (std::ostream& cout, MoveDirection direction)
 			cout << '>';
 			break;
 
-		case MoveDirection::Start:
+		case MoveDirection::No:
 
-			cout << '!';
-			break;
-
-		case MoveDirection::End:
-
-			cout << '%';
-			break; 
-
-		default: // default - copypaste
-
-			cout << 'o';
+			cout << '-';
 			break;
 	}
 
@@ -124,15 +90,15 @@ std::ostream& operator<< (std::ostream& cout, MoveDirection direction)
 }
 
 template<class ValueType>
-void print(const Grid<ValueType>& graph)
+void print(const Grid<ValueType>& grid)
 {
 	// system("clear");
 
-	for (size_t y = 0; y < graph.size; y++)
+	for (int y = int(grid.size) - 1; y >= 0; y--)
 	{
-		for (size_t x = 0; x < graph.size; x++)
+		for (int x = 0; x < int(grid.size); x++)
 		{
-			std::cout << graph[y][x] << ' ';
+			std::cout << grid[y][x] << ' ';
 		}
 
 		std::cout << '\n';
@@ -141,10 +107,34 @@ void print(const Grid<ValueType>& graph)
 	std::cin.get();
 }
 
+
+void printPath(	const Grid<MoveDirection>& backDirections,
+				const Point& start,
+				const Point& finish)
+{
+	Grid<MoveDirection> resultPath{backDirections.size, MoveDirection::No};
+
+	Point currCell = finish;
+
+	while(true)
+	{
+		resultPath.at(currCell) = backDirections.at(currCell);
+		
+		currCell = currCell + getShift(backDirections.at(currCell));
+
+		if (currCell == start)
+		{
+			break;
+		}
+	}
+
+	print(resultPath);
+}
+
+
 // For compiller to know which version to generate
 template void print<int>(const Grid<int>& graph);
 template void print<Point>(const Grid<Point>& graph);
 template void print<AlgoState>(const Grid<AlgoState>& graph);
 template void print<Tile>(const Grid<Tile>& graph);
-template void print<Results>(const Grid<Results>& graph);
 template void print<MoveDirection>(const Grid<MoveDirection>& graph);

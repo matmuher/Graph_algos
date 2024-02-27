@@ -20,22 +20,18 @@ enum class AlgoState
 	InProgress
 };
 
-enum class Results
-{
-	Free,
-	Path
-};
-
 enum class MoveDirection
 {
 	No,
 	Up,
 	Down,
 	Left,
-	Right,
-	Start,
-	End
+	Right
 };
+
+MoveDirection operator! (MoveDirection dir);
+
+Point getShift(MoveDirection moveDirection);
 
 template<class ValueType>
 class Grid

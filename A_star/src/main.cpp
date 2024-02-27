@@ -5,6 +5,15 @@
 
 #include <vector>
 
+/*
+	Make it clearer how I save path (new struct?)
+
+	Make text description
+
+	Add Drawing?
+	Add UI?
+*/
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -69,12 +78,7 @@ int main()
 		{
 			astar.search(start, end, heuristic);
 
-			// print(astar.pathsToStart());
-			Grid<Results> results = getResults(	astar.moveDirections(),
-												astar.pathsToStart(),
-												start,
-												end);
-			print(results);
+			printPath(astar.moveDirections(), start, end);
 		}
 	}
 	catch (std::bad_alloc& except)

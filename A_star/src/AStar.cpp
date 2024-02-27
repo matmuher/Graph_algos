@@ -46,14 +46,17 @@ bool AStar::makeStep()
 
 	if (current == end_)
 	{
-		moveDirections_.at(end_) = MoveDirection::End;
 		isInit_ = false;
 		return false;
 	}
 
-	for (auto shift : shifts)
+	for (MoveDirection dir : {	MoveDirection::Up,
+								MoveDirection::Right,
+								MoveDirection::Down,
+								MoveDirection::Left})
 	{
-		Point neighbour = current + shift.second;
+		Point neighbour = current + getShift(!dir); // write return address
+
 		int neighbourProbableCost = pathCosts_.at(current) +
 									heuristic_(neighbour, tileCosts_.at(neighbour), end_);
 
@@ -62,7 +65,7 @@ bool AStar::makeStep()
 			isUnprocessed(neighbour) &&
 			neighbourProbableCost < pathCosts_.at(neighbour))
 		{
-			moveDirections_.at(neighbour) = shift.first;
+			moveDirections_.at(neighbour) = dir;
 			pathsToStart_.at(neighbour) = current;
 
 			state_.at(neighbour) = AlgoState::InProgress;
@@ -134,8 +137,6 @@ void AStar::initSearch(Point start, Point end, Heuristic heuristic)
 	moveDirections_.fill(MoveDirection::No);
 
 	pathCosts_.at(start_) = 0;
-	moveDirections_.at(start_) = MoveDirection::Start;
-	moveDirections_.at(end_) = MoveDirection::End;
 
 	clearQueue(weightedNextDoors_);
 	weightedNextDoors_.emplace(start_, 0);
@@ -144,38 +145,6 @@ void AStar::initSearch(Point start, Point end, Heuristic heuristic)
 
 	// dump();
 }
-
-Grid<Results> getResults(	const Grid<MoveDirection>& directions,
-							const Grid<Point>& paths,
-							const Point& start,
-							const Point& finish)
-{
-	Grid<Results> results{paths.size, Results::Free};
-	Grid<MoveDirection> resultPath{paths.size, MoveDirection::No};
-
-	results.at(start) = Results::Path;
-	results.at(finish) = Results::Path;
-
-	Point currCell = paths.at(finish);
-	
-	resultPath.at(finish) = MoveDirection::End;
-	resultPath.at(start) = MoveDirection::Start;
-
-	while(currCell != start)
-	{
-		results.at(currCell) = Results::Path;
-		resultPath.at(currCell) = directions.at(currCell);
-
-		Point prevCell = paths.at(currCell);
-
-		currCell = prevCell;
-	}
-
-	print(resultPath);
-
-	return results;
-}
-
 
 void AStar::dump() const
 {

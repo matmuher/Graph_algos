@@ -85,6 +85,53 @@ const ValueType* Grid<ValueType>::operator[] (int row_id) const
 	return root + row_id * size;
 }
 
+#define OPPOSITS(dir, reverse)			\
+			case dir: return reverse;	\
+			case reverse: return dir;	\
+
+MoveDirection operator! (MoveDirection moveDirection)
+{
+	using MoveDirection::Up;
+	using MoveDirection::Right;
+	using MoveDirection::Down;
+	using MoveDirection::Left;
+	using MoveDirection::No;
+
+	switch(moveDirection)
+	{
+		OPPOSITS(Up, Down)
+		OPPOSITS(Right, Left)
+
+		default: return No;
+	}
+
+	return No;
+}
+
+#undef OPPOSITS
+
+#define RET_SHIFT(Dir, x_shift, y_shift)	 				\
+						case MoveDirection::Dir:			\
+							return Point{x_shift, y_shift};	\
+
+Point getShift(MoveDirection moveDirection)
+{
+	switch(moveDirection)
+	{
+		RET_SHIFT(Up, 	 0,  1)
+		RET_SHIFT(Down,  0, -1)
+		RET_SHIFT(Right, 1,  0)
+		RET_SHIFT(Left, -1,  0)
+		RET_SHIFT(No,	 0,  0)
+		// ? need to specify default case here ? 
+
+		default: return Zeros;
+	}
+
+	return Zeros;
+}
+
+#undef RET_SHIFT
 
 // For compiller to know which version to generate
 // REALLY? MANUALLY?
@@ -92,5 +139,4 @@ template class Grid<int>;
 template class Grid<Point>;
 template class Grid<AlgoState>;
 template class Grid<Tile>;
-template class Grid<Results>;
 template class Grid<MoveDirection>;

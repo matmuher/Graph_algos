@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(A_star VERSION 0.1)
 
-add_compile_options(-Wall -Wextra -Wpedantic -ggdb)
+add_compile_options(-Wall -Wextra -Wpedantic -ggdb -std=c++20)
 
 add_executable(A_star
 				src/main.cpp
