@@ -8,14 +8,13 @@
 
 enum class Tile
 {
-	Free,
-	Obstacle,
-	Unknown	
+	No,
+	Obstacle
 };
 
 enum class AlgoState
 {
-	Free,
+	No,
 	Checked,
 	InProgress
 };

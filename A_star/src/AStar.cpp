@@ -131,7 +131,7 @@ void AStar::initSearch(Point start, Point end, Heuristic heuristic)
 	end_ = end;
 	heuristic_ = heuristic;
 
-	state_.fill(AlgoState::Free);
+	state_.fill(AlgoState::No);
 	pathsToStart_.fill(PathPoison);
 	pathCosts_.fill(MaxCost);
 	moveDirections_.fill(MoveDirection::No);

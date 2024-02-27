@@ -91,11 +91,7 @@ const ValueType* Grid<ValueType>::operator[] (int row_id) const
 
 MoveDirection operator! (MoveDirection moveDirection)
 {
-	using MoveDirection::Up;
-	using MoveDirection::Right;
-	using MoveDirection::Down;
-	using MoveDirection::Left;
-	using MoveDirection::No;
+	using enum MoveDirection;
 
 	switch(moveDirection)
 	{
@@ -110,12 +106,13 @@ MoveDirection operator! (MoveDirection moveDirection)
 
 #undef OPPOSITS
 
-#define RET_SHIFT(Dir, x_shift, y_shift)	 				\
-						case MoveDirection::Dir:			\
-							return Point{x_shift, y_shift};	\
+#define RET_SHIFT(Dir, x_shift, y_shift)	 						\
+						case Dir: return Point{x_shift, y_shift};	\
 
 Point getShift(MoveDirection moveDirection)
 {
+	using enum MoveDirection;
+
 	switch(moveDirection)
 	{
 		RET_SHIFT(Up, 	 0,  1)
@@ -123,9 +120,6 @@ Point getShift(MoveDirection moveDirection)
 		RET_SHIFT(Right, 1,  0)
 		RET_SHIFT(Left, -1,  0)
 		RET_SHIFT(No,	 0,  0)
-		// ? need to specify default case here ? 
-
-		default: return Zeros;
 	}
 
 	return Zeros;

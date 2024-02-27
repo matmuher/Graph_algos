@@ -1,25 +1,19 @@
 #include "Print.hpp"
 #include "Point.hpp"
 
+#define PRINT_AS(enumVal, sym) 		\
+			case enumVal:			\
+				cout << sym;		\
+				break;				\
+
 std::ostream& operator<< (std::ostream& cout, Tile tileType)
 {
+	using enum Tile;
+
 	switch(tileType)
 	{
-		case Tile::Obstacle:
-
-			cout << 'X';
-			break;
-
-		case Tile::Free:
-
-			cout << '-';
-			break;
-
-		case Tile::Unknown:
-		default:
-
-			cout << '?';
-			break;
+		PRINT_AS(Obstacle, 'X')
+		PRINT_AS(No, '-')
 	}
 
 	return cout;
@@ -28,27 +22,13 @@ std::ostream& operator<< (std::ostream& cout, Tile tileType)
 
 std::ostream& operator<< (std::ostream& cout, AlgoState algoState)
 {
+	using enum AlgoState;
+
 	switch(algoState)
 	{
-		case AlgoState::Checked:
-
-			cout << '@';
-			break;
-
-		case AlgoState::InProgress:
-
-			cout << '*';
-			break;
-
-		case AlgoState::Free:
-
-			cout << '-';
-			break;
-
-		default:
-
-			cout << '?';
-			break;
+		PRINT_AS(Checked, '@')
+		PRINT_AS(InProgress, '*')
+		PRINT_AS(No, '-')
 	}
 
 	return cout;
@@ -56,38 +36,21 @@ std::ostream& operator<< (std::ostream& cout, AlgoState algoState)
 
 std::ostream& operator<< (std::ostream& cout, MoveDirection direction)
 {
+	using enum MoveDirection;
+
 	switch(direction)
 	{
-		case MoveDirection::Up:
-
-			cout << '^';
-			break;
-
-		case MoveDirection::Down:
-
-			cout << 'v';
-			break;
-
-
-		case MoveDirection::Left:
-
-			cout << '<';
-			break;
-
-
-		case MoveDirection::Right:
-
-			cout << '>';
-			break;
-
-		case MoveDirection::No:
-
-			cout << '-';
-			break;
+		PRINT_AS(Up, 	'^')
+		PRINT_AS(Down, 	'v')
+		PRINT_AS(Left, 	'<')
+		PRINT_AS(Right, '>')
+		PRINT_AS(No, 	'-')
 	}
 
 	return cout;
 }
+
+#undef PRINT_AS
 
 template<class ValueType>
 void print(const Grid<ValueType>& grid)
@@ -130,7 +93,6 @@ void printPath(	const Grid<MoveDirection>& backDirections,
 
 	print(resultPath);
 }
-
 
 // For compiller to know which version to generate
 template void print<int>(const Grid<int>& graph);
