@@ -9,9 +9,7 @@ std::ostream& operator<< (std::ostream& cout, AlgoState algoState);
 
 std::ostream& operator<< (std::ostream& cout, Tile tileType);
 
-void printPath(	const Grid<MoveDirection>& directions,
-				const Point& start,
-				const Point& finish);
+std::ostream& operator<< (std::ostream& cout, MoveDirection direction);
 
 template<class ValueType>
 void print(const Grid<ValueType>& graph);

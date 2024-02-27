@@ -30,18 +30,18 @@ public:
 
 	Grid<Point> search(Point start, Point end, Heuristic heuristic);
 
-// [Consts]
-
-	static constexpr int MaxCost = std::numeric_limits<int>::max();
-	static constexpr int DefaultCost = 1;
-	static const Point PathPoison;
-
 // [Getters]
 
 	const Grid<AlgoState>& state() const;
 	const Grid<Point>& pathsToStart() const;
 	const Grid<int>& pathCosts() const;
 	const Grid<MoveDirection>& moveDirections() const;
+
+// [Consts]
+
+	static constexpr int MaxCost = std::numeric_limits<int>::max();
+	static constexpr int DefaultCost = 1;
+	static const Point PathPoison;
 
 private:
 
@@ -79,3 +79,8 @@ private:
 
 	void dump() const;
 };
+
+
+Grid<MoveDirection> getPath(	const Grid<MoveDirection>& directions,
+								const Point& start,
+								const Point& finish);

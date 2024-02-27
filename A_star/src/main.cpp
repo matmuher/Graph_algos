@@ -2,12 +2,11 @@
 #include "Grid.hpp"
 #include "Point.hpp"
 #include "Print.hpp"
+#include "LayersPrinter.hpp"
 
 #include <vector>
 
 /*
-	Make it clearer how I save path (new struct?)
-
 	Make text description
 
 	Add Drawing?
@@ -36,7 +35,7 @@ int heuristicBFS (Point point, int pointCost, Point end)
 
 int heuristicDFS (Point point, int pointCost, Point end)
 {
-	static int C = std::numeric_limits<int>::max();
+	static int C = AStar::MaxCost / 2;
 
 	C -= 1;
 	return C; 
@@ -45,7 +44,7 @@ int heuristicDFS (Point point, int pointCost, Point end)
 
 int main()
 {
-	size_t size = 10; // read map
+	size_t size = 20; // read map
 
 	Grid<Tile> map{size};
 
@@ -55,21 +54,23 @@ int main()
 	map.at({4, 3}) = Tile::Obstacle;
 	map.at({4, 4}) = Tile::Obstacle;
 
-	// map.at({1, 4}) = Tile::Obstacle;
-	// map.at({2, 4}) = Tile::Obstacle;
-	// map.at({3, 4}) = Tile::Obstacle;
-	// map.at({4, 4}) = Tile::Obstacle;
+	map.at({6, 4}) = Tile::Obstacle;
+	map.at({7, 4}) = Tile::Obstacle;
+	map.at({8, 4}) = Tile::Obstacle;
+	map.at({9, 4}) = Tile::Obstacle;
 
 	print(map);
 
 	Grid<int> tileCosts{size, 1};
 
 	Point start{0, 0};
-	Point end{6, 0};
+	Point end{7, 0};
 
 	try
 	{
-		std::vector<AStar::Heuristic> heuristics{	heuristicBFS,
+		std::vector<AStar::Heuristic> heuristics{	heuristicEuclidian,
+													heuristicManhattan,
+													heuristicBFS,
 													heuristicDFS};
 
 		AStar astar{map, tileCosts};
@@ -77,8 +78,20 @@ int main()
 		for (AStar::Heuristic heuristic : heuristics)
 		{
 			astar.search(start, end, heuristic);
+	
+			Grid<MoveDirection> path = getPath(astar.moveDirections(), start, end);
 
-			printPath(astar.moveDirections(), start, end);
+			std::vector<const GridPrinter*> printers;
+
+			TerminalPrinter pathPrinter{path};
+			TerminalPrinter mapPrinter{map};
+			TerminalPrinter statePrinter{astar.state()};
+
+			printers.push_back(&mapPrinter);
+			printers.push_back(&pathPrinter);
+			printers.push_back(&statePrinter);
+
+			drawLayers(size, printers);
 		}
 	}
 	catch (std::bad_alloc& except)

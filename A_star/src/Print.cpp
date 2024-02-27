@@ -1,6 +1,8 @@
 #include "Print.hpp"
 #include "Point.hpp"
 
+#include <iomanip>
+
 #define PRINT_AS(enumVal, sym) 		\
 			case enumVal:			\
 				cout << sym;		\
@@ -68,30 +70,6 @@ void print(const Grid<ValueType>& grid)
 	}
 
 	std::cin.get();
-}
-
-
-void printPath(	const Grid<MoveDirection>& backDirections,
-				const Point& start,
-				const Point& finish)
-{
-	Grid<MoveDirection> resultPath{backDirections.size, MoveDirection::No};
-
-	Point currCell = finish;
-
-	while(true)
-	{
-		resultPath.at(currCell) = backDirections.at(currCell);
-		
-		currCell = currCell + getShift(backDirections.at(currCell));
-
-		if (currCell == start)
-		{
-			break;
-		}
-	}
-
-	print(resultPath);
 }
 
 // For compiller to know which version to generate

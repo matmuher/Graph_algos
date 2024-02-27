@@ -152,3 +152,27 @@ void AStar::dump() const
 	print(pathCosts_);
 	print(pathsToStart_);
 }
+
+
+Grid<MoveDirection> getPath(	const Grid<MoveDirection>& backDirections,
+								const Point& start,
+								const Point& finish)
+{
+	Grid<MoveDirection> resultPath{backDirections.size, MoveDirection::No};
+
+	Point currCell = finish;
+
+	while(true)
+	{
+		resultPath.at(currCell) = backDirections.at(currCell);
+		
+		currCell = currCell + getShift(backDirections.at(currCell));
+
+		if (currCell == start)
+		{
+			break;
+		}
+	}
+
+	return resultPath;
+}
