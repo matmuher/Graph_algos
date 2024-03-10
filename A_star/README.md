@@ -37,7 +37,7 @@ A* is algorithm of searching path from point to point.
 
 Key concept in A* is neighbors queue. We start with start point and push all its neighbors to the neighbors queue. This queue is queue with priorities. Priority can be computed as:
 
-$Priority = cost\_from\_start + cost\_to\_end$
+Priority = cost_from_start + cost_to_end
 
 cost_from_start - distance from start, similar to distance in [Dijkstra algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm).
 
