@@ -93,22 +93,14 @@ bool AStar::makeStep()
 			neighbourProbableCost < pathCosts_.at(neighbour))
 		{
 			command.putValue(moveDirections_, neighbour, dir);
-			moveDirections_.at(neighbour) = dir;
-			
 
 			command.putValue(pathsToStart_, neighbour, current);
-			pathsToStart_.at(neighbour) = current;
-
 
 			command.putValue(state_, neighbour, AlgoState::InProgress);
-			state_.at(neighbour) = AlgoState::InProgress;
-			
 
 			command.putValue(pathCosts_, neighbour, neighbourProbableCost);
-			pathCosts_.at(neighbour) = neighbourProbableCost;
 
 			command.pushPoint({neighbour, pathCosts_.at(neighbour)});
-			// weightedNextDoors_.emplace(neighbour, pathCosts_.at(neighbour)); // how emplace works?
 		}
 	}
 

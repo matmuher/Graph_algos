@@ -7,6 +7,11 @@ namespace GA
 {
 
 
+std::istream& operator>> (std::istream& cin, Point& point)
+{
+	cin >> point.x >> point.y;
+}
+
 std::ostream& operator<<(std::ostream& cout, MaChar maChar)
 {
 	return cout << maChar.value;

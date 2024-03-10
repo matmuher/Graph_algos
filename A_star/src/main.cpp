@@ -7,16 +7,48 @@
 #include "Heuristic.hpp"
 #include "Drawing.hpp"
 
+void inputParameters(	size_t& gridSize,
+						std::vector<GA::Point>& obstacles,
+						GA::Point& start,
+						GA::Point& end)
+{
+	std::cin >> gridSize;
+
+	size_t obstacleNum;
+	std::cin >> obstacleNum;
+
+	for (size_t obstacle_id = 0; obstacle_id < obstacleNum; obstacle_id++)
+	{
+		GA::Point newObstacle;
+		std::cin >> newObstacle;
+
+		obstacles.push_back(newObstacle);
+	}
+
+	std::cin >> start;
+	std::cin >> end;
+}
+
 int main(int argc, const char* argv[])
 {
+	std::vector<GA::Point> obstacles;
+	GA::Point start, end;
+	size_t GridSize;
+
+	inputParameters(GridSize, obstacles, start, end);
+
 // [Input Parameteres]
 
-	const size_t GridSize = 20;
 	const float QuadWidth = 2. / (GridSize);
 
 	using namespace GA;
 
 	Grid<Tile> map{GridSize};
+
+	for (auto obstacle : obstacles)
+	{
+		map.at(obstacle) = Tile::Obstacle;
+	}
 
 	map.at({4, 0}) = Tile::Obstacle;
 	map.at({4, 1}) = Tile::Obstacle;
@@ -30,9 +62,6 @@ int main(int argc, const char* argv[])
 	map.at({9, 4}) = Tile::Obstacle;
 
 	Grid<int> tileCosts{GridSize, 1};
-
-	GA::Point start{0, 0};
-	GA::Point end{7, 0};
 
 // [Init AStar]
 
