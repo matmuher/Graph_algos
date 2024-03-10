@@ -4,6 +4,11 @@
 
 #include <map>
 
+namespace GA
+{
+
 const Point AStar::PathPoison{-1, -1};
 const Point Ones{1, 1};
 const Point Zeros{0, 0};
+
+};

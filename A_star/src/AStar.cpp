@@ -1,5 +1,9 @@
 #include "AStar.hpp"
 #include "Print.hpp"
+#include "Command.hpp"
+
+namespace GA
+{
 
 AStar::AStar(	const Grid<Tile>& map,
 				const Grid<int>& tileCosts)
@@ -12,7 +16,8 @@ AStar::AStar(	const Grid<Tile>& map,
 	state_{size_},
 	pathsToStart_{size_},
 	pathCosts_{size_},
-	moveDirections_{size_}
+	moveDirections_{size_},
+	resultPath_{size_}
 {}
 
 AStar::AStar(	const Grid<Tile>& map,
@@ -26,27 +31,49 @@ AStar::AStar(	const Grid<Tile>& map,
 	initSearch(start, end, heuristic);
 }
 
-bool AStar::makeStep()
+bool AStar::stepBack()
 {
-	if (!isInit_)
+	if (!history.empty())
 	{
-		throw "Algorithm is not initialized";
+		auto command = history.back();
+
+		command.cancel();
+
+		history.pop_back();
+	
+		return true;
 	}
 
-	if (weightedNextDoors_.empty())
+	return false;
+}
+
+bool AStar::makeStep()
+{
+	if (isInit_ == false)
 	{
-		isInit_ = false;
+		std::cout << "Non init\n";
 		return false;
 	}
 
-	Point current = weightedNextDoors_.top().point; // choose point with the least cost
-	weightedNextDoors_.pop();
+	history.emplace_back(weightedNextDoors_, isInit_);
+	Command& command = history.back();
 
+	if (weightedNextDoors_.empty())
+	{
+		std::cout << "Empty queue\n";
+		command.setInit(false);
+		return isInit_;
+	}
+
+	Point current = command.popPoint();
+
+	command.putValue(state_, current, AlgoState::Checked);
 	state_.at(current) = AlgoState::Checked;
 
 	if (current == end_)
 	{
-		isInit_ = false;
+		setPath();
+		command.setInit(false);
 		return false;
 	}
 
@@ -65,13 +92,23 @@ bool AStar::makeStep()
 			isUnprocessed(neighbour) &&
 			neighbourProbableCost < pathCosts_.at(neighbour))
 		{
+			command.putValue(moveDirections_, neighbour, dir);
 			moveDirections_.at(neighbour) = dir;
+			
+
+			command.putValue(pathsToStart_, neighbour, current);
 			pathsToStart_.at(neighbour) = current;
 
+
+			command.putValue(state_, neighbour, AlgoState::InProgress);
 			state_.at(neighbour) = AlgoState::InProgress;
+			
+
+			command.putValue(pathCosts_, neighbour, neighbourProbableCost);
 			pathCosts_.at(neighbour) = neighbourProbableCost;
 
-			weightedNextDoors_.emplace(neighbour, pathCosts_.at(neighbour)); // how emplace works?
+			command.pushPoint({neighbour, pathCosts_.at(neighbour)});
+			// weightedNextDoors_.emplace(neighbour, pathCosts_.at(neighbour)); // how emplace works?
 		}
 	}
 
@@ -96,6 +133,11 @@ const Grid<int>& AStar::pathCosts() const
 const Grid<MoveDirection>& AStar::moveDirections() const
 {
 	return moveDirections_;
+}
+
+const Grid<MoveDirection>& AStar::resultPath() const
+{
+	return resultPath_;
 }
 
 bool AStar::isInBoundaries(const Point& point) const
@@ -135,6 +177,10 @@ void AStar::initSearch(Point start, Point end, Heuristic heuristic)
 	pathsToStart_.fill(PathPoison);
 	pathCosts_.fill(MaxCost);
 	moveDirections_.fill(MoveDirection::No);
+	resultPath_.fill(MoveDirection::No);
+
+	resultPath_.at(start_) = MoveDirection::Start;
+	resultPath_.at(end_) = MoveDirection::End;
 
 	pathCosts_.at(start_) = 0;
 
@@ -142,8 +188,6 @@ void AStar::initSearch(Point start, Point end, Heuristic heuristic)
 	weightedNextDoors_.emplace(start_, 0);
 
 	isInit_ = true;
-
-	// dump();
 }
 
 void AStar::dump() const
@@ -154,25 +198,28 @@ void AStar::dump() const
 }
 
 
-Grid<MoveDirection> getPath(	const Grid<MoveDirection>& backDirections,
-								const Point& start,
-								const Point& finish)
-{
-	Grid<MoveDirection> resultPath{backDirections.size, MoveDirection::No};
 
-	Point currCell = finish;
+void AStar::setPath()
+{
+	if (history.empty())
+	{
+		throw "Cant make route: history is empty";
+	}
+
+	Command& command = history.back();
+	Point currCell = end_ + getShift(moveDirections_.at(end_));
 
 	while(true)
 	{
-		resultPath.at(currCell) = backDirections.at(currCell);
-		
-		currCell = currCell + getShift(backDirections.at(currCell));
+		command.putValue(resultPath_, currCell, moveDirections_.at(currCell));
 
-		if (currCell == start)
+		currCell = currCell + getShift(moveDirections_.at(currCell));
+
+		if (currCell == start_)
 		{
 			break;
 		}
 	}
-
-	return resultPath;
 }
+
+};

@@ -1,140 +1,22 @@
+#include "Shader.hpp"
 #include "AStar.hpp"
 #include "Grid.hpp"
 #include "Point.hpp"
 #include "Print.hpp"
-#include "LayersPrinter.hpp"
+#include "BufferPrinter.hpp"
+#include "Heuristic.hpp"
+#include "Drawing.hpp"
 
-#include <vector>
-
-/*
-	Add text description?
-
-	Add Drawing?
-	Add UI?
-	Add reversing of actions?
-*/
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
-int heuristicManhattan (Point point, int pointCost, Point end)
+int main(int argc, const char* argv[])
 {
-	return 	pointCost +
-			distanceManhattan(point, end);
-};
+// [Input Parameteres]
 
-int heuristicEuclidian (Point point, int pointCost, Point end)
-{
-	return 	pointCost +
-			distanceEuclidian(point, end);
-};
+	const size_t GridSize = 20;
+	const float QuadWidth = 2. / (GridSize);
 
-int heuristicBFS (Point point, int pointCost, Point end)
-{
-	return 0; // all neighbours are equal: priority queue -> queue
-}
+	using namespace GA;
 
-int heuristicDFS (Point point, int pointCost, Point end)
-{
-	static int C = AStar::MaxCost / 2;
-
-	C -= 1;
-	return C; 
-}
-#pragma GCC diagnostic pop
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-namespace GLFW
-{
-	struct ScopeGuard
-	{
-		ScopeGuard()
-		{
-			glfwInit();
-		}
-
-		~ScopeGuard()
-		{
-			glfwTerminate();	
-		}
-	};
-
-	static void initOpenGL(int versionMajor, int versionMinor)
-	{
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, versionMajor);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, versionMinor);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	}
-
-	struct Window
-	{
-		GLFWwindow* window = nullptr;
-
-		Window(int width, int height, const char* title)
-		{
-			window = glfwCreateWindow(width, height, title, NULL, NULL);
-		
-			if (!window)
-			{
-				throw "Cant create glfw window";
-			}
-		}
-
-		void makeContextCurrent()
-		{
-			glfwMakeContextCurrent(window);
-		}
-
-		bool shouldClose()
-		{
-			return glfwWindowShouldClose(window);
-		}
-
-		void swapBuffers()
-		{
-			glfwSwapBuffers(window);
-		}
-	};
-
-	void pollEvents()
-	{
-		glfwPollEvents();
-	}
-}
-
-int main()
-{
-	GLFW::ScopeGuard scopeGuard;
-
-	GLFW::initOpenGL(3, 3);
-
-	const int Width = 800;
-	const int Height = 800;
-	const char* Title = "Pathfinder";
-
-	GLFW::Window window{Width, Height, Title};
-
-	window.makeContextCurrent();
-
-	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
-	{
-		throw "Glad cant load GL functions";
-	}
-
-	while(!window.shouldClose())
-	{
-		window.swapBuffers();
-		GLFW::pollEvents();
-	}
-}
-
-int main1()
-{
-	size_t size = 20; // read map
-
-	Grid<Tile> map{size};
+	Grid<Tile> map{GridSize};
 
 	map.at({4, 0}) = Tile::Obstacle;
 	map.at({4, 1}) = Tile::Obstacle;
@@ -147,45 +29,69 @@ int main1()
 	map.at({8, 4}) = Tile::Obstacle;
 	map.at({9, 4}) = Tile::Obstacle;
 
-	print(map);
+	Grid<int> tileCosts{GridSize, 1};
 
-	Grid<int> tileCosts{size, 1};
+	GA::Point start{0, 0};
+	GA::Point end{7, 0};
 
-	Point start{0, 0};
-	Point end{7, 0};
+// [Init AStar]
 
-	try
+	AStar astar{map, tileCosts};
+	AStar::Heuristic heuristic = processCmd(argc, argv);
+	astar.initSearch(start, end, heuristic);
+
+// [Init Drawing]
+
+	GLFW::ScopeGuard scopeGuard;
+	GLFW::initOpenGL(3, 3);
+
+	GLFW::Window window{800, 800, "Pathfinder"};	
+	Grid<GA::Color> buffer{GridSize, White};
+	GridDrawer drawer{GridSize};
+
+	drawer.shader.use();
+	drawer.shader.setFloat("QuadWidth", QuadWidth);
+	drawer.shader.setInt("GridSize", GridSize);
+
+// [Render Loop]
+
+	while(!window.shouldClose())
 	{
-		std::vector<AStar::Heuristic> heuristics{	heuristicEuclidian,
-													heuristicManhattan,
-													heuristicBFS,
-													heuristicDFS};
 
-		AStar astar{map, tileCosts};
+// [Process Events]
 
-		for (AStar::Heuristic heuristic : heuristics)
+		int button = window.processInput();
+
+		switch(button)
 		{
-			astar.search(start, end, heuristic);
-	
-			Grid<MoveDirection> path = getPath(astar.moveDirections(), start, end);
+			case GLFW_KEY_LEFT:
 
-			std::vector<const GridPrinter*> printers;
+				astar.stepBack();
+				break;
 
-			TerminalPrinter pathPrinter{path};
-			TerminalPrinter mapPrinter{map};
-			TerminalPrinter statePrinter{astar.state()};
+			case GLFW_KEY_RIGHT:
 
-			printers.push_back(&mapPrinter);
-			printers.push_back(&pathPrinter);
-			printers.push_back(&statePrinter);
+				astar.makeStep();
+				break;
 
-			drawLayers(size, printers);
+			default: ;
 		}
-	}
-	catch (std::bad_alloc& except)
-	{
-		std::cerr << "Cant allocate grid: " << except.what() << std::endl;
-	}
 
-	return 0;
+// [Convert data to drawing format]
+
+		buffer.fill(White);
+		std::vector<Filler<GA::Color>> fillers;
+		fillers.emplace_back(astar.resultPath(), MoveDirection::No);
+		fillers.emplace_back(map, Tile::No);
+		fillers.emplace_back(astar.state(), AlgoState::No);
+		fillBuffer(buffer, fillers);
+
+// [Draw]
+
+		drawer.updateColors(&buffer[0][0]);
+		drawer.drawGrid();
+
+		window.swapBuffers();
+		GLFW::pollEvents();
+	}
 }

@@ -6,6 +6,9 @@
 
 #include "Point.hpp"
 
+namespace GA
+{
+
 enum class Tile
 {
 	No,
@@ -25,7 +28,9 @@ enum class MoveDirection
 	Up,
 	Down,
 	Left,
-	Right
+	Right,
+	Start,
+	End
 };
 
 MoveDirection operator! (MoveDirection dir);
@@ -44,6 +49,8 @@ public:
 	Grid(size_t _size, ValueType filler);
 
 	Grid(const Grid& other);
+
+	Grid& operator= (const Grid& other);
 
 	Grid(Grid&& other);
 
@@ -67,3 +74,4 @@ private:
 };
 
 extern const std::map<MoveDirection, Point> shifts;
+};

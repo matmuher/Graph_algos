@@ -11,7 +11,10 @@ add_executable(A_star
 				src/consts.cpp
 				src/AStar.cpp
 				src/Grid.cpp
-				src/Print.cpp)
+				src/Print.cpp
+
+	            src/Shader.cpp
+				)
 
 target_include_directories(A_star PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 target_link_libraries(A_star glfw GL X11 pthread Xrandr Xi dl)

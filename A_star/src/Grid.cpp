@@ -1,8 +1,12 @@
 #include "Grid.hpp"
 #include "Point.hpp"
+#include "Print.hpp"
 
 #include <cstring>
 #include <algorithm>
+
+namespace GA
+{
 
 template<class ValueType>
 Grid<ValueType>::Grid(size_t _size)
@@ -25,6 +29,15 @@ Grid<ValueType>::Grid(const Grid& other)
 	Grid(other.size)
 {
 	std::cout << "Copy ctor\n";
+	std::memcpy(this->root, other.root, sizeof(ValueType) * size * size);
+}
+
+
+
+template<class ValueType>
+Grid<ValueType>& Grid<ValueType>::operator= (const Grid<ValueType>& other)
+{
+	std::cout << "Operator=\n";
 	std::memcpy(this->root, other.root, sizeof(ValueType) * size * size);
 }
 
@@ -134,3 +147,8 @@ template class Grid<Point>;
 template class Grid<AlgoState>;
 template class Grid<Tile>;
 template class Grid<MoveDirection>;
+template class Grid<char>;
+template class Grid<MaChar>;
+template class Grid<Color>;
+
+};

@@ -1,10 +1,14 @@
 #pragma once
 
 #include "Grid.hpp"
+#include "Command.hpp"
 
 #include <functional>
 #include <queue>
 #include <limits>
+
+namespace GA
+{
 
 // for obtaining algo info on every step
 struct AStar
@@ -27,6 +31,7 @@ public:
 	void initSearch(Point start, Point end, Heuristic heuristic);
 
 	bool makeStep();
+	bool stepBack();
 
 	Grid<Point> search(Point start, Point end, Heuristic heuristic);
 
@@ -36,6 +41,7 @@ public:
 	const Grid<Point>& pathsToStart() const;
 	const Grid<int>& pathCosts() const;
 	const Grid<MoveDirection>& moveDirections() const;
+	const Grid<MoveDirection>& resultPath() const;
 
 // [Consts]
 
@@ -57,6 +63,9 @@ private:
 	Grid<Point> pathsToStart_;
 	Grid<int> pathCosts_;
 	Grid<MoveDirection> moveDirections_;
+	Grid<MoveDirection> resultPath_;
+
+	std::vector<Command> history;
 
 // [Search params]
 
@@ -78,9 +87,8 @@ private:
 	bool isUnprocessed(const Point& point) const;
 
 	void dump() const;
+
+	void setPath();
 };
 
-
-Grid<MoveDirection> getPath(	const Grid<MoveDirection>& directions,
-								const Point& start,
-								const Point& finish);
+}

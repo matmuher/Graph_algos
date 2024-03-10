@@ -3,56 +3,129 @@
 
 #include <iomanip>
 
-#define PRINT_AS(enumVal, sym) 		\
+namespace GA
+{
+
+
+std::ostream& operator<<(std::ostream& cout, MaChar maChar)
+{
+	return cout << maChar.value;
+}
+
+#define ASS(enumVal, ...) 		\
 			case enumVal:			\
-				cout << sym;		\
+				return __VA_ARGS__;			\
 				break;				\
 
-std::ostream& operator<< (std::ostream& cout, Tile tileType)
+#define COUT(type)											\
+std::ostream& operator<< (std::ostream& cout, type val)		\
+{															\
+	return cout << toChar(val);								\
+}
+
+char toChar(Tile tileType)
 {
 	using enum Tile;
 
 	switch(tileType)
 	{
-		PRINT_AS(Obstacle, 'X')
-		PRINT_AS(No, '-')
+		ASS(Obstacle, 'X')
+		ASS(No, '-')
 	}
 
-	return cout;
+	return 'F';
 }
+COUT(Tile);
 
-
-std::ostream& operator<< (std::ostream& cout, AlgoState algoState)
+char toChar(AlgoState algoState)
 {
 	using enum AlgoState;
 
 	switch(algoState)
 	{
-		PRINT_AS(Checked, '@')
-		PRINT_AS(InProgress, '*')
-		PRINT_AS(No, '-')
+		ASS(Checked, '@')
+		ASS(InProgress, '*')
+		ASS(No, '-')
 	}
 
-	return cout;
+	return 'F';
 }
+COUT(AlgoState);
 
-std::ostream& operator<< (std::ostream& cout, MoveDirection direction)
+char toChar(MoveDirection direction)
 {
 	using enum MoveDirection;
 
 	switch(direction)
 	{
-		PRINT_AS(Up, 	'^')
-		PRINT_AS(Down, 	'v')
-		PRINT_AS(Left, 	'<')
-		PRINT_AS(Right, '>')
-		PRINT_AS(No, 	'-')
+		ASS(Up, 	'^')
+		ASS(Down, 	'v')
+		ASS(Left, 	'<')
+		ASS(Right, 	'>')
+		ASS(No, 	'-')
 	}
 
-	return cout;
+	return 'F';
+}
+COUT(MoveDirection);
+
+
+Color toColor(MoveDirection direction)
+{
+	using enum MoveDirection;
+
+	switch(direction)
+	{
+		ASS(Up, 	Blue)
+		ASS(Down, 	Blue)
+		ASS(Left, 	Blue)
+		ASS(Right,  Blue)
+		ASS(Start, 	Green)
+		ASS(End,  	Green)
+		ASS(No, 	Pink)
+	}
+
+	return Pink;
 }
 
-#undef PRINT_AS
+Color toColor(Tile tileType)
+{
+	using enum Tile;
+
+	switch(tileType)
+	{
+		ASS(Obstacle, Black)
+		ASS(No, Pink)
+	}
+
+	return Pink;
+}
+
+
+Color toColor(AlgoState algoState)
+{
+	using enum AlgoState;
+
+	switch(algoState)
+	{
+		ASS(Checked, Red)
+		ASS(InProgress, Yellow)
+		ASS(No, Pink)
+	}
+
+	return Pink;
+}
+
+#undef COUT
+#undef ASS
+
+
+std::ostream& operator<< (std::ostream& cout, Color color)
+{
+	return cout << 	color.value.x << ' ' <<
+					color.value.y << ' ' <<
+					color.value.z << ' ';	
+}
 
 template<class ValueType>
 void print(const Grid<ValueType>& grid)
@@ -78,3 +151,17 @@ template void print<Point>(const Grid<Point>& graph);
 template void print<AlgoState>(const Grid<AlgoState>& graph);
 template void print<Tile>(const Grid<Tile>& graph);
 template void print<MoveDirection>(const Grid<MoveDirection>& graph);
+template void print<char>(const Grid<char>& graph);
+template void print<MaChar>(const Grid<MaChar>& graph);
+
+const Color
+	Red{1., 0., 0.},
+	Green{0., 1., 0.},
+	Blue{0., 0., 1.},
+	Pink{1., 0., 1.},
+	Goluboy{0., 1., 1.},
+	Yellow{1., 1., 0.},
+	Orange{1., 0.5, 0.},
+	Black{0., 0., 0.},
+	White{1., 1., 1.};
+};

@@ -3,6 +3,9 @@
 #include <map>
 #include <iostream>
 
+namespace GA
+{
+
 struct Point
 {
 	int x;
@@ -38,11 +41,31 @@ struct WeightedPoint
 	Point point;
 	int weight;
 
-	WeightedPoint(const Point& _point, int _weight);
+	// WeightedPoint() : point{}, weight{}
+	// {}
+
+	// WeightedPoint(const Point& _point, int _weight);
+
+	// WeightedPoint(const WeightedPoint& other)
+	// :
+	// 	point{other.point},
+	// 	weight{other.weight}
+	// {}
+
+	// WeightedPoint& operator= (const WeightedPoint& other)
+	// {
+	// 	point = other.point;
+	// 	weight = other.weight;
+
+	// 	return *this;
+	// }
 };
+
+bool operator==(const WeightedPoint& lhs, const WeightedPoint& rhs);
 
 bool operator<(const WeightedPoint& lhs, const WeightedPoint& rhs);
 
 
 extern const Point Ones;
 extern const Point Zeros;
+};
